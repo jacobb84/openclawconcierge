@@ -3,6 +3,7 @@ import { concertsService } from '../services/api';
 import Pagination from '../components/Pagination';
 import Modal from '../components/Modal';
 import { ExternalLink, MapPin, Calendar, Trash2, Eye } from 'lucide-react';
+import { formatDateWithWeekday } from '../utils/helpers';
 
 export default function Concerts() {
   const [concerts, setConcerts] = useState([]);
@@ -39,101 +40,79 @@ export default function Concerts() {
     }
   };
 
-  const formatDate = (dateStr) => {
-    if (!dateStr) return 'TBD';
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
   if (loading && concerts.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-gray-500">Loading concerts...</p>
+        <p className="text-secondary">Loading concerts...</p>
       </div>
     );
   }
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-800">Concerts</h1>
-        <p className="text-gray-500 mt-1">Upcoming concerts and shows</p>
+      <div className="page-header">
+        <h1 className="page-title">Concerts</h1>
+        <p className="page-subtitle">Upcoming concerts and shows</p>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
+      <div className="card overflow-hidden">
+        <table className="data-table">
+          <thead>
             <tr>
-              <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Artists</th>
-              <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Date</th>
-              <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Venue</th>
-              <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Location</th>
-              <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Status</th>
-              <th className="text-right px-6 py-3 text-sm font-medium text-gray-500">Actions</th>
+              <th>Artists</th>
+              <th>Date</th>
+              <th>Venue</th>
+              <th>Location</th>
+              <th className="text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody>
             {concerts.map((concert) => (
-              <tr key={concert.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <div className="font-medium text-gray-800">
+              <tr key={concert.id}>
+                <td>
+                  <span className="font-medium text-primary">
                     {concert.artists?.join(', ') || 'Unknown'}
-                  </div>
+                  </span>
                 </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Calendar className="w-4 h-4" />
-                    {formatDate(concert.date)}
-                  </div>
+                <td>
+                  <span className="flex items-center gap-2 text-secondary whitespace-nowrap">
+                    <Calendar className="w-4 h-4 flex-shrink-0" />
+                    {formatDateWithWeekday(concert.date)}
+                  </span>
                 </td>
-                <td className="px-6 py-4 text-gray-600">{concert.venue || '-'}</td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <MapPin className="w-4 h-4" />
+                <td className="text-secondary">{concert.venue || '-'}</td>
+                <td>
+                  <span className="flex items-center gap-2 text-secondary">
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
                     {concert.city || '-'}
-                  </div>
+                  </span>
                 </td>
-                <td className="px-6 py-4">
-                  {concert.sent ? (
-                    <span className="inline-flex px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
-                      Sent
-                    </span>
-                  ) : (
-                    <span className="inline-flex px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-700 rounded-full">
-                      Pending
-                    </span>
-                  )}
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center justify-end gap-2">
+                <td>
+                  <div className="flex items-center justify-end gap-1">
                     <button
                       onClick={() => setSelectedConcert(concert)}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="icon-btn"
                       title="View details"
                     >
-                      <Eye className="w-4 h-4 text-gray-500" />
+                      <Eye className="w-4 h-4" />
                     </button>
                     {concert.source_url && (
                       <a
                         href={concert.source_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="icon-btn"
                         title="Open source"
                       >
-                        <ExternalLink className="w-4 h-4 text-gray-500" />
+                        <ExternalLink className="w-4 h-4" />
                       </a>
                     )}
                     <button
                       onClick={() => handleDelete(concert.id)}
-                      className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                      className="icon-btn icon-btn-danger"
                       title="Delete"
                     >
-                      <Trash2 className="w-4 h-4 text-red-500" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </td>
@@ -143,12 +122,12 @@ export default function Concerts() {
         </table>
 
         {concerts.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-secondary">
             No concerts found
           </div>
         )}
 
-        <div className="px-6 pb-4">
+        <div className="card-body">
           <Pagination
             page={page}
             pages={pagination.pages}
@@ -166,40 +145,36 @@ export default function Concerts() {
         {selectedConcert && (
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-gray-500">Artists</label>
-              <p className="text-gray-800">{selectedConcert.artists?.join(', ')}</p>
+              <label className="form-label">Artists</label>
+              <p className="text-primary">{selectedConcert.artists?.join(', ')}</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-500">Date</label>
-                <p className="text-gray-800">{formatDate(selectedConcert.date)}</p>
+                <label className="form-label">Date</label>
+                <p className="text-primary">{formatDateWithWeekday(selectedConcert.date)}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">Venue</label>
-                <p className="text-gray-800">{selectedConcert.venue || '-'}</p>
+                <label className="form-label">Venue</label>
+                <p className="text-primary">{selectedConcert.venue || '-'}</p>
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-500">Location</label>
-              <p className="text-gray-800">{selectedConcert.city || '-'}</p>
+              <label className="form-label">Location</label>
+              <p className="text-primary">{selectedConcert.city || '-'}</p>
             </div>
             {selectedConcert.source_url && (
               <div>
-                <label className="text-sm font-medium text-gray-500">Source</label>
+                <label className="form-label">Source</label>
                 <a
                   href={selectedConcert.source_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline block truncate"
+                  className="link block truncate"
                 >
                   {selectedConcert.source_url}
                 </a>
               </div>
             )}
-            <div>
-              <label className="text-sm font-medium text-gray-500">Sent Date</label>
-              <p className="text-gray-800">{selectedConcert.sent ? formatDate(selectedConcert.sent) : 'Not sent'}</p>
-            </div>
           </div>
         )}
       </Modal>

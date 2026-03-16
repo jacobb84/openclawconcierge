@@ -11,3 +11,7 @@ class Config:
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-key-change-in-production')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
     API_KEY = os.environ.get('API_KEY', 'default-api-key-change-in-production')
+    
+    # CORS configuration - comma-separated list of allowed origins
+    # Example: "http://localhost:3000,https://app.example.com"
+    CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '*')

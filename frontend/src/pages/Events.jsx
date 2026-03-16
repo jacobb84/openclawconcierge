@@ -3,6 +3,7 @@ import { eventsService } from '../services/api';
 import Pagination from '../components/Pagination';
 import Modal from '../components/Modal';
 import { ExternalLink, MapPin, Calendar, Trash2, Eye, Tag } from 'lucide-react';
+import { formatDateWithWeekday } from '../utils/helpers';
 
 export default function Events() {
   const [events, setEvents] = useState([]);
@@ -39,108 +40,72 @@ export default function Events() {
     }
   };
 
-  const formatDate = (dateStr) => {
-    if (!dateStr) return 'TBD';
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
   if (loading && events.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-gray-500">Loading events...</p>
+        <p className="text-secondary">Loading events...</p>
       </div>
     );
   }
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-800">Events</h1>
-        <p className="text-gray-500 mt-1">Local events and exhibitions</p>
+      <div className="page-header">
+        <h1 className="page-title">Events</h1>
+        <p className="page-subtitle">Local events and exhibitions</p>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
+      <div className="card overflow-hidden">
+        <table className="data-table">
+          <thead>
             <tr>
-              <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Title</th>
-              <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Category</th>
-              <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Date</th>
-              <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Location</th>
-              <th className="text-left px-6 py-3 text-sm font-medium text-gray-500">Status</th>
-              <th className="text-right px-6 py-3 text-sm font-medium text-gray-500">Actions</th>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th>Location</th>
+              <th className="text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody>
             {events.map((event) => (
-              <tr key={event.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <div className="font-medium text-gray-800 max-w-xs truncate">
+              <tr key={event.id}>
+                <td>
+                  <span className="font-medium text-primary truncate block max-w-xs">
                     {event.title}
-                  </div>
+                  </span>
                 </td>
-                <td className="px-6 py-4">
+                <td>
                   {event.category && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
+                    <span className="badge badge-blue">
                       <Tag className="w-3 h-3" />
                       {event.category}
                     </span>
                   )}
                 </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Calendar className="w-4 h-4" />
-                    {formatDate(event.date)}
-                  </div>
+                <td>
+                  <span className="flex items-center gap-2 text-secondary whitespace-nowrap">
+                    <Calendar className="w-4 h-4 flex-shrink-0" />
+                    {formatDateWithWeekday(event.date)}
+                  </span>
                 </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <MapPin className="w-4 h-4" />
+                <td>
+                  <span className="flex items-center gap-2 text-secondary">
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
                     {event.city || '-'}
-                  </div>
+                  </span>
                 </td>
-                <td className="px-6 py-4">
-                  {event.sent ? (
-                    <span className="inline-flex px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
-                      Sent
-                    </span>
-                  ) : (
-                    <span className="inline-flex px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-700 rounded-full">
-                      Pending
-                    </span>
-                  )}
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center justify-end gap-2">
-                    <button
-                      onClick={() => setSelectedEvent(event)}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                      title="View details"
-                    >
-                      <Eye className="w-4 h-4 text-gray-500" />
+                <td>
+                  <div className="flex items-center justify-end gap-1">
+                    <button onClick={() => setSelectedEvent(event)} className="icon-btn" title="View details">
+                      <Eye className="w-4 h-4" />
                     </button>
                     {event.source_url && (
-                      <a
-                        href={event.source_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                        title="Open source"
-                      >
-                        <ExternalLink className="w-4 h-4 text-gray-500" />
+                      <a href={event.source_url} target="_blank" rel="noopener noreferrer" className="icon-btn" title="Open source">
+                        <ExternalLink className="w-4 h-4" />
                       </a>
                     )}
-                    <button
-                      onClick={() => handleDelete(event.id)}
-                      className="p-2 hover:bg-red-100 rounded-lg transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-500" />
+                    <button onClick={() => handleDelete(event.id)} className="icon-btn icon-btn-danger" title="Delete">
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </td>
@@ -150,62 +115,45 @@ export default function Events() {
         </table>
 
         {events.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
-            No events found
-          </div>
+          <div className="text-center py-12 text-secondary">No events found</div>
         )}
 
-        <div className="px-6 pb-4">
-          <Pagination
-            page={page}
-            pages={pagination.pages}
-            total={pagination.total}
-            onPageChange={fetchEvents}
-          />
+        <div className="card-body">
+          <Pagination page={page} pages={pagination.pages} total={pagination.total} onPageChange={fetchEvents} />
         </div>
       </div>
 
-      <Modal
-        isOpen={!!selectedEvent}
-        onClose={() => setSelectedEvent(null)}
-        title="Event Details"
-        size="md"
-      >
+      <Modal isOpen={!!selectedEvent} onClose={() => setSelectedEvent(null)} title="Event Details" size="md">
         {selectedEvent && (
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-gray-500">Title</label>
-              <p className="text-gray-800">{selectedEvent.title}</p>
+              <label className="form-label">Title</label>
+              <p className="text-primary">{selectedEvent.title}</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-500">Category</label>
-                <p className="text-gray-800">{selectedEvent.category || '-'}</p>
+                <label className="form-label">Category</label>
+                <p className="text-primary capitalize">{selectedEvent.category || '-'}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">Date</label>
-                <p className="text-gray-800">{formatDate(selectedEvent.date)}</p>
+                <label className="form-label">Date</label>
+                <p className="text-primary">{formatDateWithWeekday(selectedEvent.date)}</p>
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-500">Location</label>
-              <p className="text-gray-800">{selectedEvent.city || '-'}</p>
+              <label className="form-label">Location</label>
+              <p className="text-primary">{selectedEvent.city || '-'}</p>
             </div>
             {selectedEvent.summary && (
               <div>
-                <label className="text-sm font-medium text-gray-500">Summary</label>
-                <p className="text-gray-800">{selectedEvent.summary}</p>
+                <label className="form-label">Summary</label>
+                <p className="text-primary">{selectedEvent.summary}</p>
               </div>
             )}
             {selectedEvent.source_url && (
               <div>
-                <label className="text-sm font-medium text-gray-500">Source</label>
-                <a
-                  href={selectedEvent.source_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline block truncate"
-                >
+                <label className="form-label">Source</label>
+                <a href={selectedEvent.source_url} target="_blank" rel="noopener noreferrer" className="link block truncate">
                   {selectedEvent.source_url}
                 </a>
               </div>

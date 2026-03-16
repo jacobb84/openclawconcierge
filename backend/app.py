@@ -9,7 +9,10 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
     
     # Initialize extensions
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    cors_origins = app.config.get('CORS_ORIGINS', '*')
+    if cors_origins != '*':
+        cors_origins = [origin.strip() for origin in cors_origins.split(',')]
+    CORS(app, resources={r"/api/*": {"origins": cors_origins, "supports_credentials": True}})
     db.init_app(app)
     JWTManager(app)
     
