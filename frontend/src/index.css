@@ -845,3 +845,257 @@ body {
 .h-3 { height: 0.75rem; }
 .w-5 { width: 1.25rem; }
 .h-5 { height: 1.25rem; }
+.w-6 { width: 1.5rem; }
+.h-6 { height: 1.5rem; }
+
+/* ========================================
+   Mobile Header & Hamburger Menu
+   ======================================== */
+
+.mobile-header {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3.5rem;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-primary);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  z-index: 40;
+}
+
+.hamburger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  border-radius: var(--border-radius-sm);
+  transition: background-color 0.15s ease;
+}
+
+.hamburger-btn:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.mobile-brand {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.mobile-brand .sidebar-title {
+  font-size: 1rem;
+}
+
+.mobile-brand .sidebar-subtitle {
+  font-size: 0.75rem;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 45;
+}
+
+.sidebar-close-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--border-radius-sm);
+  transition: all 0.15s ease;
+}
+
+.sidebar-close-btn:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.sidebar-header-content {
+  flex: 1;
+}
+
+/* ========================================
+   Mobile Responsive Breakpoint (768px)
+   ======================================== */
+
+@media (max-width: 768px) {
+  /* Show mobile header */
+  .mobile-header {
+    display: flex;
+  }
+
+  /* Sidebar becomes a slide-out drawer */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 280px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 50;
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+
+  .sidebar-close-btn {
+    display: flex;
+  }
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Main content adjustments */
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+    padding-top: 4.5rem;
+  }
+
+  /* Page header stacking */
+  .page-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .page-header.flex {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  /* Filter buttons wrap */
+  .flex.gap-2 {
+    flex-wrap: wrap;
+  }
+
+  /* Card adjustments */
+  .card.p-6 {
+    padding: 1rem;
+  }
+
+  /* Job/News card layout - stack vertically */
+  .card .flex.items-start.justify-between {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .card .flex.items-start.justify-between > .flex.items-center.gap-1 {
+    align-self: flex-end;
+  }
+
+  /* Grid adjustments for modals */
+  .grid.grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+
+  /* Meta info stacking */
+  .flex.flex-wrap.items-center.gap-4 {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  /* Company meta stacking */
+  .company-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  /* Table responsive - hide on mobile, show cards instead */
+  .data-table {
+    display: block;
+  }
+
+  .data-table thead {
+    display: none;
+  }
+
+  .data-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .data-table tbody tr {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    border: 1px solid var(--border-primary);
+    border-radius: var(--border-radius-sm);
+    gap: 0.5rem;
+  }
+
+  .data-table td {
+    padding: 0;
+  }
+
+  .data-table td:last-child {
+    margin-top: 0.5rem;
+  }
+
+  .data-table td .flex.items-center.justify-end {
+    justify-content: flex-start;
+  }
+
+  /* Pagination mobile */
+  .pagination {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .pagination-info {
+    text-align: center;
+  }
+
+  /* Modal adjustments */
+  .modal {
+    max-width: calc(100vw - 2rem);
+    margin: 1rem;
+  }
+
+  /* Dashboard section cards */
+  .section-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .dashboard-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .dashboard-item > .flex.items-center.gap-1 {
+    align-self: flex-end;
+  }
+}
