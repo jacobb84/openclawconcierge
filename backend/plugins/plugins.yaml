@@ -1,0 +1,36 @@
+plugins:
+  news:
+    enabled: true
+    display_name: News
+    description: News articles and updates
+    icon: Newspaper
+    color: green
+    order: 3
+    settings: {}
+  
+  careers:
+    enabled: true
+    display_name: Career
+    description: Job listings and company research
+    icon: Briefcase
+    color: orange
+    order: 4
+    settings: {}
+  
+  events:
+    enabled: true
+    display_name: Events
+    description: Local events and exhibitions
+    icon: Calendar
+    color: blue
+    order: 2
+    settings: {}
+  
+  concerts:
+    enabled: true
+    display_name: Concerts
+    description: Upcoming concerts and shows
+    icon: Music
+    color: purple
+    order: 1
+    settings: {}

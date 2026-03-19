@@ -8,12 +8,15 @@ A dashboard for browsing and managing data collected by your OpenClaw AI instanc
 - **Events**: Local events and exhibitions
 - **News**: News articles with drip-feed functionality
 - **Career**: Job listings and company research with markdown rendering
+- **Plugin System**: Extensible architecture with hot-reload configuration
+- **CLI**: Command-line interface for concierge skill integration
 
 ## Tech Stack
 
-- **Backend**: Flask + SQLAlchemy + SQLite
+- **Backend**: FastAPI + SQLAlchemy + SQLite
 - **Frontend**: React + Vite + TailwindCSS
 - **Authentication**: JWT tokens for dashboard, API keys for OpenClaw integration
+- **CLI**: Typer + httpx
 
 ## Setup
 
@@ -42,7 +45,7 @@ A dashboard for browsing and managing data collected by your OpenClaw AI instanc
 
 5. Run the server:
    ```bash
-   uv run flask run
+   uv run uvicorn main:app --reload
    ```
    The API will be available at `http://localhost:5000`
 
@@ -74,10 +77,42 @@ See [backend/API.md](backend/API.md) for complete API documentation.
 
 | Variable | Description |
 |----------|-------------|
-| `SECRET_KEY` | Flask secret key for sessions |
+| `SECRET_KEY` | Application secret key |
 | `JWT_SECRET_KEY` | Secret key for JWT token signing |
-| `API_KEY` | API key for OpenClaw integration |
 | `DATABASE_URL` | SQLite database URL (default: `sqlite:///concierge.db`) |
+| `CORS_ORIGINS` | Allowed CORS origins (comma-separated) |
+| `PLUGINS_DIR` | Directory for plugins (default: `plugins`) |
+| `PLUGINS_CONFIG` | Plugin configuration file (default: `plugins/plugins.yaml`) |
+
+### Environment Variables (CLI)
+
+| Variable | Description |
+|----------|-------------|
+| `CONCIERGE_API_URL` | API base URL (default: `http://localhost:5000/api`) |
+| `CONCIERGE_API_KEY` | API key for authentication |
+
+## CLI Usage
+
+The CLI provides commands for managing concierge data:
+
+```bash
+# Add a concert
+uv run python cli.py concerts add --artists "Artist Name" --date 2026-09-25 --venue "Venue" --city "City"
+
+# Add a news article
+uv run python cli.py news add --title "Title" --category "Tech" --summary "Summary..."
+
+# Add a job
+uv run python cli.py careers add-job --title "Engineer" --company "Acme" --url "https://..."
+
+# Prune past concerts
+uv run python cli.py concerts prune
+
+# Pop next news article (drip feed)
+uv run python cli.py news pop
+```
+
+Run `uv run python cli.py --help` for full command documentation.
 
 ## OpenClaw Integration
 
@@ -90,11 +125,14 @@ curl -X POST http://localhost:5000/api/news \
   -d '{"title": "Article Title", "category": "Tech", "summary": "..."}'
 ```
 
-### News Drip Feed
+## Plugin System
 
-To pop the next unsent news article (marks it as sent):
+Plugins are located in `backend/plugins/` and configured via `plugins/plugins.yaml`. Each plugin provides:
 
-```bash
-curl -X POST http://localhost:5000/api/news/pop \
-  -H "X-API-Key: your-api-key"
-```
+- Database models
+- API routes
+- Card layout definitions for the dashboard
+
+To create a new plugin, extend `BasePlugin` from `core.plugin_base` and implement the required methods.
+
+Hot-reload is supported - edit `plugins.yaml` to enable/disable plugins without restarting.

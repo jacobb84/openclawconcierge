@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { newsService } from '../services/api';
 import Pagination from '../components/Pagination';
-import Modal from '../components/Modal';
-import { ExternalLink, Calendar, Trash2, Eye, Tag, Search, HelpCircle } from 'lucide-react';
+import { Calendar, Trash2, Tag, Check, HelpCircle } from 'lucide-react';
 import { formatDate } from '../utils/helpers';
 
 export default function News() {
@@ -10,7 +9,6 @@ export default function News() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ total: 0, pages: 1 });
-  const [selectedNews, setSelectedNews] = useState(null);
   const [filter, setFilter] = useState('all');
 
   const fetchNews = async (pageNum = 1, filterType = filter) => {
@@ -87,7 +85,7 @@ export default function News() {
                   )}
                   {item.confirmed ? (
                     <span className="badge badge-green" title="Fact-checked">
-                      <Search className="w-3 h-3" />
+                      <Check className="w-3 h-3" />
                       Verified
                     </span>
                   ) : (
@@ -97,7 +95,13 @@ export default function News() {
                     </span>
                   )}
                 </div>
-                <h3 className="font-semibold text-primary mb-2">{item.title}</h3>
+                {item.source_url ? (
+                  <a href={item.source_url} target="_blank" rel="noopener noreferrer" className="font-semibold text-primary mb-2 block link hover:underline">
+                    {item.title}
+                  </a>
+                ) : (
+                  <h3 className="font-semibold text-primary mb-2">{item.title}</h3>
+                )}
                 {item.summary && (
                   <p className="text-secondary text-sm mb-3 line-clamp-2">{item.summary}</p>
                 )}
@@ -119,14 +123,6 @@ export default function News() {
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <button onClick={() => setSelectedNews(item)} className="icon-btn" title="View details">
-                  <Eye className="w-4 h-4" />
-                </button>
-                {item.source_url && (
-                  <a href={item.source_url} target="_blank" rel="noopener noreferrer" className="icon-btn" title="Open source">
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                )}
                 <button onClick={() => handleDelete(item.id)} className="icon-btn icon-btn-danger" title="Delete">
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -141,55 +137,6 @@ export default function News() {
 
         <Pagination page={page} pages={pagination.pages} total={pagination.total} onPageChange={(p) => fetchNews(p)} />
       </div>
-
-      <Modal isOpen={!!selectedNews} onClose={() => setSelectedNews(null)} title="Article Details" size="lg">
-        {selectedNews && (
-          <div className="space-y-4">
-            <div>
-              <label className="form-label">Title</label>
-              <p className="text-primary font-medium">{selectedNews.title}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="form-label">Category</label>
-                <p className="text-primary capitalize">{selectedNews.category || '-'}</p>
-              </div>
-              <div>
-                <label className="form-label">Date</label>
-                <p className="text-primary">{formatDate(selectedNews.date)}</p>
-              </div>
-            </div>
-            <div>
-              <label className="form-label">Verification Status</label>
-              <p className="text-primary">{selectedNews.confirmed ? 'Verified (Fact-checked)' : 'Unverified'}</p>
-            </div>
-            {selectedNews.summary && (
-              <div>
-                <label className="form-label">Summary</label>
-                <p className="text-primary">{selectedNews.summary}</p>
-              </div>
-            )}
-            {selectedNews.tags && selectedNews.tags.length > 0 && (
-              <div>
-                <label className="form-label">Tags</label>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {selectedNews.tags.map((tag) => (
-                    <span key={tag} className="badge badge-gray">{tag}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-            {selectedNews.source_url && (
-              <div>
-                <label className="form-label">Source</label>
-                <a href={selectedNews.source_url} target="_blank" rel="noopener noreferrer" className="link block truncate">
-                  {selectedNews.source_url}
-                </a>
-              </div>
-            )}
-          </div>
-        )}
-      </Modal>
     </div>
   );
 }

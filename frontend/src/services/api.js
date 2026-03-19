@@ -34,6 +34,13 @@ export const authService = {
   me: () => api.get('/auth/me'),
 };
 
+export const pluginsService = {
+  getAll: () => api.get('/plugins'),
+  getDashboard: () => api.get('/plugins/dashboard'),
+  reload: (name) => api.post(`/plugins/${name}/reload`),
+  updateConfig: (name, config) => api.put(`/plugins/${name}/config`, config),
+};
+
 export const concertsService = {
   getAll: (params) => api.get('/concerts', { params }),
   getOne: (id) => api.get(`/concerts/${id}`),
@@ -56,17 +63,26 @@ export const newsService = {
 };
 
 export const companiesService = {
-  getAll: (params) => api.get('/career/companies', { params }),
-  getOne: (id) => api.get(`/career/companies/${id}`),
-  update: (id, data) => api.put(`/career/companies/${id}`, data),
-  delete: (id) => api.delete(`/career/companies/${id}`),
+  getAll: (params) => api.get('/careers/companies', { params }),
+  getOne: (id) => api.get(`/careers/companies/${id}`),
+  update: (id, data) => api.put(`/careers/companies/${id}`, data),
+  delete: (id) => api.delete(`/careers/companies/${id}`),
 };
 
 export const jobsService = {
-  getAll: (params) => api.get('/career/jobs', { params }),
-  getOne: (id) => api.get(`/career/jobs/${id}`),
-  update: (id, data) => api.put(`/career/jobs/${id}`, data),
-  delete: (id) => api.delete(`/career/jobs/${id}`),
+  getAll: (params) => api.get('/careers/jobs', { params }),
+  getOne: (id) => api.get(`/careers/jobs/${id}`),
+  update: (id, data) => api.put(`/careers/jobs/${id}`, data),
+  delete: (id) => api.delete(`/careers/jobs/${id}`),
+};
+
+export const apiKeysService = {
+  getAll: () => api.get('/api-keys'),
+  getOne: (id) => api.get(`/api-keys/${id}`),
+  create: (data) => api.post('/api-keys', data),
+  update: (id, data) => api.put(`/api-keys/${id}`, data),
+  delete: (id) => api.delete(`/api-keys/${id}`),
+  regenerate: (id) => api.post(`/api-keys/${id}/regenerate`),
 };
 
 export default api;

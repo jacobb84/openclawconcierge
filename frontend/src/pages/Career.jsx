@@ -6,7 +6,7 @@ import Modal from '../components/Modal';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { 
-  ExternalLink, MapPin, Calendar, Trash2, Eye, Building2, 
+  MapPin, Calendar, Trash2, Building2, 
   DollarSign, Briefcase, Globe, FileText
 } from 'lucide-react';
 import { formatDate, formatSalary } from '../utils/helpers';
@@ -16,7 +16,6 @@ function JobsTab({ onViewCompany }) {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ total: 0, pages: 1 });
-  const [selectedJob, setSelectedJob] = useState(null);
 
   const fetchJobs = async (pageNum = 1) => {
     setLoading(true);
@@ -55,135 +54,78 @@ function JobsTab({ onViewCompany }) {
   }
 
   return (
-    <>
-      <div className="space-y-4">
-        {jobs.map((job) => (
-          <div key={job.id} className="card p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  {job.is_remote && (
-                    <span className="badge badge-green">
-                      <Globe className="w-3 h-3" />
-                      Remote
-                    </span>
-                  )}
-                  {job.site && (
-                    <span className="badge badge-gray">{job.site}</span>
-                  )}
-                </div>
+    <div className="space-y-4">
+      {jobs.map((job) => (
+        <div key={job.id} className="card p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-2">
+                {job.is_remote && (
+                  <span className="badge badge-green">
+                    <Globe className="w-3 h-3" />
+                    Remote
+                  </span>
+                )}
+                {job.site && (
+                  <span className="badge badge-gray">{job.site}</span>
+                )}
+              </div>
+              {job.job_url ? (
+                <a href={job.job_url} target="_blank" rel="noopener noreferrer" className="font-semibold text-primary mb-1 block link hover:underline">
+                  {job.title}
+                </a>
+              ) : (
                 <h3 className="font-semibold text-primary mb-1">{job.title}</h3>
-                <div className="flex items-center gap-2 text-secondary mb-2">
-                  <Building2 className="w-4 h-4 flex-shrink-0" />
-                  {job.company_id ? (
-                    <button onClick={() => onViewCompany(job.company_id)} className="link text-left">
-                      {job.company}
-                    </button>
-                  ) : (
-                    <span>{job.company}</span>
-                  )}
-                </div>
-                <div className="flex flex-wrap items-center gap-4 text-sm text-muted">
-                  {job.location && (
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      {job.location}
-                    </span>
-                  )}
-                  {formatSalary(job.salary_min, job.salary_max) && (
-                    <span className="flex items-center gap-1">
-                      <DollarSign className="w-4 h-4" />
-                      {formatSalary(job.salary_min, job.salary_max)}
-                    </span>
-                  )}
+              )}
+              <div className="flex items-center gap-2 text-secondary mb-2">
+                <Building2 className="w-4 h-4 flex-shrink-0" />
+                {job.company_id ? (
+                  <button onClick={() => onViewCompany(job.company_id)} className="link text-left">
+                    {job.company}
+                  </button>
+                ) : (
+                  <span>{job.company}</span>
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-4 text-sm text-muted">
+                {job.location && (
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-4 h-4" />
+                    {job.location}
+                  </span>
+                )}
+                {formatSalary(job.salary_min, job.salary_max) && (
+                  <span className="flex items-center gap-1">
+                    <DollarSign className="w-4 h-4" />
+                    {formatSalary(job.salary_min, job.salary_max)}
+                  </span>
+                )}
+                {job.date_posted && (
                   <span className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
                     Posted {formatDate(job.date_posted)}
                   </span>
-                </div>
-                {job.summary && (
-                  <p className="text-secondary text-sm mt-3 line-clamp-2">{job.summary}</p>
                 )}
               </div>
-              <div className="flex items-center gap-1">
-                <button onClick={() => setSelectedJob(job)} className="icon-btn" title="View details">
-                  <Eye className="w-4 h-4" />
-                </button>
-                {job.job_url && (
-                  <a href={job.job_url} target="_blank" rel="noopener noreferrer" className="icon-btn" title="View job listing">
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                )}
-                <button onClick={() => handleDelete(job.id)} className="icon-btn icon-btn-danger" title="Delete">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
+              {job.summary && (
+                <p className="text-secondary text-sm mt-3 line-clamp-2">{job.summary}</p>
+              )}
+            </div>
+            <div className="flex items-center gap-1">
+              <button onClick={() => handleDelete(job.id)} className="icon-btn icon-btn-danger" title="Delete">
+                <Trash2 className="w-4 h-4" />
+              </button>
             </div>
           </div>
-        ))}
+        </div>
+      ))}
 
-        {jobs.length === 0 && (
-          <div className="card text-center py-12 text-secondary">No jobs found</div>
-        )}
+      {jobs.length === 0 && (
+        <div className="card text-center py-12 text-secondary">No jobs found</div>
+      )}
 
-        <Pagination page={page} pages={pagination.pages} total={pagination.total} onPageChange={fetchJobs} />
-      </div>
-
-      <Modal isOpen={!!selectedJob} onClose={() => setSelectedJob(null)} title="Job Details" size="lg">
-        {selectedJob && (
-          <div className="space-y-4">
-            <div>
-              <label className="form-label">Title</label>
-              <p className="text-primary font-semibold text-lg">{selectedJob.title}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="form-label">Company</label>
-                <p className="text-primary">{selectedJob.company}</p>
-              </div>
-              <div>
-                <label className="form-label">Location</label>
-                <p className="text-primary">{selectedJob.location || '-'}</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="form-label">Salary Range</label>
-                <p className="text-primary">{formatSalary(selectedJob.salary_min, selectedJob.salary_max) || '-'}</p>
-              </div>
-              <div>
-                <label className="form-label">Remote</label>
-                <p className="text-primary">{selectedJob.is_remote ? 'Yes' : 'No'}</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="form-label">Posted</label>
-                <p className="text-primary">{formatDate(selectedJob.date_posted)}</p>
-              </div>
-              <div>
-                <label className="form-label">Source</label>
-                <p className="text-primary capitalize">{selectedJob.site || '-'}</p>
-              </div>
-            </div>
-            {selectedJob.description && (
-              <div>
-                <label className="form-label">Description</label>
-                <div className="job-description">{selectedJob.description}</div>
-              </div>
-            )}
-            {selectedJob.job_url && (
-              <div>
-                <a href={selectedJob.job_url} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
-                  <ExternalLink className="w-4 h-4" />
-                  View Job Listing
-                </a>
-              </div>
-            )}
-          </div>
-        )}
-      </Modal>
-    </>
+      <Pagination page={page} pages={pagination.pages} total={pagination.total} onPageChange={fetchJobs} />
+    </div>
   );
 }
 
@@ -245,61 +187,50 @@ function CompaniesTab() {
 
   return (
     <>
-      <div className="card overflow-hidden">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Company</th>
-              <th>Location</th>
-              <th>Research Date</th>
-              <th className="text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {companies.map((company) => (
-              <tr key={company.id}>
-                <td>
-                  <span className="font-medium text-primary">{company.title}</span>
-                </td>
-                <td>
-                  <span className="flex items-center gap-2 text-secondary">
-                    <MapPin className="w-4 h-4" />
-                    {company.location || '-'}
-                  </span>
-                </td>
-                <td>
-                  <span className="flex items-center gap-2 text-secondary">
-                    <Calendar className="w-4 h-4" />
-                    {formatDate(company.research_date)}
-                  </span>
-                </td>
-                <td>
-                  <div className="flex items-center justify-end gap-1">
-                    <button onClick={() => handleViewResearch(company)} className="icon-btn" title="View research">
-                      <FileText className="w-4 h-4" />
-                    </button>
-                    {company.url && (
-                      <a href={company.url} target="_blank" rel="noopener noreferrer" className="icon-btn" title="Visit website">
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                    )}
-                    <button onClick={() => handleDelete(company.id)} className="icon-btn icon-btn-danger" title="Delete">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="space-y-4">
+        {companies.map((company) => (
+          <div key={company.id} className="card p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                {company.url ? (
+                  <a href={company.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-primary mb-2 block link hover:underline">
+                    {company.title}
+                  </a>
+                ) : (
+                  <h3 className="font-semibold text-primary mb-2">{company.title}</h3>
+                )}
+                <div className="flex items-center gap-4 text-sm text-muted">
+                  {company.location && (
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-4 h-4" />
+                      {company.location}
+                    </span>
+                  )}
+                  {company.research_date && (
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      Researched {formatDate(company.research_date)}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                <button onClick={() => handleViewResearch(company)} className="icon-btn" title="View research">
+                  <FileText className="w-4 h-4" />
+                </button>
+                <button onClick={() => handleDelete(company.id)} className="icon-btn icon-btn-danger" title="Delete">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
 
         {companies.length === 0 && (
-          <div className="text-center py-12 text-secondary">No companies found</div>
+          <div className="card text-center py-12 text-secondary">No companies found</div>
         )}
 
-        <div className="card-body">
-          <Pagination page={page} pages={pagination.pages} total={pagination.total} onPageChange={fetchCompanies} />
-        </div>
+        <Pagination page={page} pages={pagination.pages} total={pagination.total} onPageChange={fetchCompanies} />
       </div>
 
       <Modal isOpen={!!selectedCompany || loadingResearch} onClose={() => setSelectedCompany(null)} title={selectedCompany?.title || 'Loading...'} size="xl">
@@ -309,7 +240,7 @@ function CompaniesTab() {
           </div>
         ) : selectedCompany && (
           <div className="space-y-4">
-            <div className="company-meta">
+            <div className="flex flex-wrap items-center gap-4 text-sm">
               {selectedCompany.location && (
                 <span className="flex items-center gap-1 text-secondary">
                   <MapPin className="w-4 h-4" />
@@ -322,10 +253,12 @@ function CompaniesTab() {
                   Website
                 </a>
               )}
-              <span className="flex items-center gap-1 text-muted">
-                <Calendar className="w-4 h-4" />
-                Researched {formatDate(selectedCompany.research_date)}
-              </span>
+              {selectedCompany.research_date && (
+                <span className="flex items-center gap-1 text-muted">
+                  <Calendar className="w-4 h-4" />
+                  Researched {formatDate(selectedCompany.research_date)}
+                </span>
+              )}
             </div>
             {selectedCompany.research ? (
               <div className="markdown-body">
@@ -392,7 +325,7 @@ export default function Career() {
           </div>
         ) : selectedCompany && (
           <div className="space-y-4">
-            <div className="company-meta">
+            <div className="flex flex-wrap items-center gap-4 text-sm">
               {selectedCompany.location && (
                 <span className="flex items-center gap-1 text-secondary">
                   <MapPin className="w-4 h-4" />
@@ -405,10 +338,12 @@ export default function Career() {
                   Website
                 </a>
               )}
-              <span className="flex items-center gap-1 text-muted">
-                <Calendar className="w-4 h-4" />
-                Researched {formatDate(selectedCompany.research_date)}
-              </span>
+              {selectedCompany.research_date && (
+                <span className="flex items-center gap-1 text-muted">
+                  <Calendar className="w-4 h-4" />
+                  Researched {formatDate(selectedCompany.research_date)}
+                </span>
+              )}
             </div>
             {selectedCompany.research ? (
               <div className="markdown-body">
