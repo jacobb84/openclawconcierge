@@ -46,12 +46,25 @@ class News(Base):
 class NewsCreate(BaseModel):
     title: str
     category: Optional[str] = None
-    date: Optional[str] = None
+    date: str
     sent: Optional[str] = None
-    summary: Optional[str] = None
-    source_url: Optional[str] = None
+    summary: str
+    source_url: str
     confirmed: bool = False
     tags: Optional[List[str]] = None
+    
+    @classmethod
+    def validate_required(cls, data: dict) -> List[str]:
+        errors = []
+        if not data.get('title'):
+            errors.append('Title is required')
+        if not data.get('summary'):
+            errors.append('Summary is required')
+        if not data.get('date'):
+            errors.append('Date is required')
+        if not data.get('source_url'):
+            errors.append('Source URL is required')
+        return errors
 
 
 class NewsUpdate(BaseModel):
@@ -167,6 +180,10 @@ class Plugin(BasePlugin):
             db: Session = Depends(get_db),
             api_key: str = Depends(verify_api_key)
         ):
+            errors = NewsCreate.validate_required(data.model_dump())
+            if errors:
+                raise HTTPException(status_code=422, detail={'validation_errors': errors})
+            
             item = News(
                 title=data.title,
                 category=data.category,

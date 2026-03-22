@@ -38,10 +38,23 @@ class Concert(Base):
 
 class ConcertCreate(BaseModel):
     artists: List[str]
-    date: Optional[str] = None
-    venue: Optional[str] = None
-    city: Optional[str] = None
+    date: str
+    venue: str
+    city: str
     source_url: Optional[str] = None
+    
+    @classmethod
+    def validate_required(cls, data: dict) -> List[str]:
+        errors = []
+        if not data.get('artists') or len(data.get('artists', [])) == 0:
+            errors.append('At least one artist is required')
+        if not data.get('date'):
+            errors.append('Date is required')
+        if not data.get('venue'):
+            errors.append('Venue is required')
+        if not data.get('city'):
+            errors.append('City/location is required')
+        return errors
 
 
 class ConcertUpdate(BaseModel):
@@ -151,6 +164,10 @@ class Plugin(BasePlugin):
             db: Session = Depends(get_db),
             api_key: str = Depends(verify_api_key)
         ):
+            errors = ConcertCreate.validate_required(data.model_dump())
+            if errors:
+                raise HTTPException(status_code=422, detail={'validation_errors': errors})
+            
             item = Concert(
                 artists=data.artists,
                 date=parse_date(data.date),

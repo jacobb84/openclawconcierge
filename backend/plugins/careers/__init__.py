@@ -87,10 +87,23 @@ class Job(Base):
 
 class CompanyCreate(BaseModel):
     title: str
-    location: Optional[str] = None
-    research_date: Optional[str] = None
+    location: str
+    research_date: str
     url: Optional[str] = None
-    research: Optional[str] = None
+    research: str
+    
+    @classmethod
+    def validate_required(cls, data: dict) -> List[str]:
+        errors = []
+        if not data.get('title'):
+            errors.append('Company name is required')
+        if not data.get('location'):
+            errors.append('Location is required')
+        if not data.get('research_date'):
+            errors.append('Research date is required')
+        if not data.get('research'):
+            errors.append('Research content is required')
+        return errors
 
 
 class CompanyUpdate(BaseModel):
@@ -104,18 +117,31 @@ class CompanyUpdate(BaseModel):
 class JobCreate(BaseModel):
     id: Optional[str] = None
     title: str
-    company: Optional[str] = None
+    company: str
     company_id: Optional[int] = None
     location: Optional[str] = None
     salary_min: Optional[float] = None
     salary_max: Optional[float] = None
     job_url: Optional[str] = None
     site: Optional[str] = None
-    date_posted: Optional[str] = None
+    date_posted: str
     is_remote: bool = False
-    description: Optional[str] = None
+    description: str
     summary: Optional[str] = None
     sent: Optional[str] = None
+    
+    @classmethod
+    def validate_required(cls, data: dict) -> List[str]:
+        errors = []
+        if not data.get('title'):
+            errors.append('Job title is required')
+        if not data.get('company'):
+            errors.append('Company name is required')
+        if not data.get('description'):
+            errors.append('Job description is required')
+        if not data.get('date_posted'):
+            errors.append('Date posted is required')
+        return errors
 
 
 class JobUpdate(BaseModel):
@@ -229,6 +255,10 @@ class Plugin(BasePlugin):
             db: Session = Depends(get_db),
             api_key: str = Depends(verify_api_key)
         ):
+            errors = CompanyCreate.validate_required(data.model_dump())
+            if errors:
+                raise HTTPException(status_code=422, detail={'validation_errors': errors})
+            
             item = Company(
                 title=data.title,
                 location=data.location,
@@ -342,6 +372,10 @@ class Plugin(BasePlugin):
             db: Session = Depends(get_db),
             api_key: str = Depends(verify_api_key)
         ):
+            errors = JobCreate.validate_required(data.model_dump())
+            if errors:
+                raise HTTPException(status_code=422, detail={'validation_errors': errors})
+            
             job_id = data.id or str(uuid.uuid4())
             
             item = Job(

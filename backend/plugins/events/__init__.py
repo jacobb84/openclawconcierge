@@ -39,11 +39,26 @@ class Event(Base):
 
 class EventCreate(BaseModel):
     title: str
-    category: Optional[str] = None
-    summary: Optional[str] = None
-    date: Optional[str] = None
-    city: Optional[str] = None
+    category: str
+    summary: str
+    date: str
+    city: str
     source_url: Optional[str] = None
+    
+    @classmethod
+    def validate_required(cls, data: dict) -> List[str]:
+        errors = []
+        if not data.get('title'):
+            errors.append('Title is required')
+        if not data.get('category'):
+            errors.append('Category is required')
+        if not data.get('summary'):
+            errors.append('Summary is required')
+        if not data.get('date'):
+            errors.append('Date is required')
+        if not data.get('city'):
+            errors.append('City/location is required')
+        return errors
 
 
 class EventUpdate(BaseModel):
@@ -155,6 +170,10 @@ class Plugin(BasePlugin):
             db: Session = Depends(get_db),
             api_key: str = Depends(verify_api_key)
         ):
+            errors = EventCreate.validate_required(data.model_dump())
+            if errors:
+                raise HTTPException(status_code=422, detail={'validation_errors': errors})
+            
             item = Event(
                 title=data.title,
                 category=data.category,
