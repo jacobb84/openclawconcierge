@@ -56,7 +56,6 @@ class Job(Base):
     is_remote = Column(Boolean, default=False)
     description = Column(Text, nullable=True)
     summary = Column(Text, nullable=True)
-    sent = Column(Date, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -80,8 +79,7 @@ class Job(Base):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None
         }
-        if not for_dashboard:
-            result["sent"] = self.sent.isoformat() if self.sent else None
+
         return result
 
 
@@ -128,7 +126,6 @@ class JobCreate(BaseModel):
     is_remote: bool = False
     description: str
     summary: Optional[str] = None
-    sent: Optional[str] = None
     
     @classmethod
     def validate_required(cls, data: dict) -> List[str]:
@@ -157,7 +154,6 @@ class JobUpdate(BaseModel):
     is_remote: Optional[bool] = None
     description: Optional[str] = None
     summary: Optional[str] = None
-    sent: Optional[str] = None
 
 
 def parse_date(date_str: Optional[str]) -> Optional[date]:
@@ -197,7 +193,7 @@ class Plugin(BasePlugin):
         )
     
     def get_dashboard_query(self, db: Session, limit: int = 3) -> Dict[str, Any]:
-        query = db.query(Job).filter(Job.sent.is_(None)).order_by(Job.date_posted.desc())
+        query = db.query(Job).order_by(Job.date_posted.desc())
         total = query.count()
         items = query.limit(limit).all()
         return {
@@ -320,7 +316,6 @@ class Plugin(BasePlugin):
             location: Optional[str] = None,
             remote: Optional[str] = None,
             site: Optional[str] = None,
-            unsent: Optional[str] = None,
             search: Optional[str] = None,
             db: Session = Depends(get_db),
             current_user: User = Depends(get_current_user)
@@ -335,8 +330,6 @@ class Plugin(BasePlugin):
                 query = query.filter(Job.is_remote == True)
             if site:
                 query = query.filter(Job.site == site)
-            if unsent == "true":
-                query = query.filter(Job.sent.is_(None))
             if search:
                 query = query.filter(or_(
                     Job.title.ilike(f"%{search}%"),
@@ -391,8 +384,7 @@ class Plugin(BasePlugin):
                 date_posted=parse_date(data.date_posted),
                 is_remote=data.is_remote,
                 description=data.description,
-                summary=data.summary,
-                sent=parse_date(data.sent)
+                summary=data.summary
             )
             db.add(item)
             db.commit()
@@ -434,8 +426,6 @@ class Plugin(BasePlugin):
                 item.description = data.description
             if data.summary is not None:
                 item.summary = data.summary
-            if data.sent is not None:
-                item.sent = parse_date(data.sent)
             
             db.commit()
             db.refresh(item)
@@ -453,20 +443,5 @@ class Plugin(BasePlugin):
             db.delete(item)
             db.commit()
             return {"message": "Job deleted"}
-        
-        @router.post("/jobs/pop")
-        def pop_job(
-            db: Session = Depends(get_db),
-            api_key: str = Depends(verify_api_key)
-        ):
-            """Get one unsent job and mark it as sent."""
-            item = db.query(Job).filter(Job.sent.is_(None)).order_by(Job.date_posted.asc()).first()
-            if not item:
-                raise HTTPException(status_code=204, detail="No unsent jobs available")
-            
-            item.sent = date.today()
-            db.commit()
-            db.refresh(item)
-            return item.to_dict()
-        
+
         return router
